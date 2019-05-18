@@ -25,10 +25,23 @@ connection.connect(function (err) {
 // display all items for sale to the customer when the app is run
 
 // -----------------------------------------------------------------------------
+// check if sufficient stock
+// -----------------------------------------------------------------------------
+
+function checkIfEnoughStock(customerOrder, inventory) {
+
+  if (parseInt(customerOrder.itemQty) <= inventory[parseInt(customerOrder.selectedItem) - 1].qty) {
+    console.log("Looks like there is sufficient stock to fulfill your order!")
+  } else {
+    console.log("Insufficient stock")
+  };
+}
+
+// -----------------------------------------------------------------------------
 // function to prompt the customer about what they would like to purchase
 // -----------------------------------------------------------------------------
 
-function promptCustomer() {
+function promptCustomer(inventory) {
 
   inquirer
     .prompt([
@@ -46,11 +59,8 @@ function promptCustomer() {
         //default: 1
       }
     ])
-    .then(function(customerOrder){
-      // check to see if sufficient stock exists for the order
-      console.log(customerOrder.selectedItem);
-      console.log(customerOrder.itemQty);
-      
+    .then(function (customerOrder) {
+      checkIfEnoughStock(customerOrder, inventory)
     });
 };
 
@@ -60,17 +70,17 @@ function promptCustomer() {
 function displayFullInventory () {
     var inventoryHeaders = [];
 
-    connection.query('DESCRIBE products', function (err, res) {
+    connection.query('DESCRIBE products', function (err, headers) {
         if (err) throw err;
 
-        for (var headerCount = 0; headerCount < res.length; headerCount++) {
-            let columnHeader = res[headerCount].Field;
+        for (var headerCount = 0; headerCount < headers.length; headerCount++) {
+            let columnHeader = headers[headerCount].Field;
             inventoryHeaders.push(columnHeader)
         };
         
     });
 
-    connection.query('SELECT * FROM products', function (err, res) {
+    connection.query('SELECT * FROM products', function (err, inventory) {
       if (err) throw err
 
       // instantiate
@@ -81,9 +91,15 @@ function displayFullInventory () {
     
       // write a for loop that walks through the data object we get from the SELECT
       // table is an Array, so you can `push`, `unshift`, `splice` and friends
-      for (var i = 0; i < res.length; i++) {
+      for (var i = 0; i < inventory.length; i++) {
         // makes an array of each item that we read through in the response
-        let inventoryItem = [res[i].sku, res[i].product_name, res[i].department_name, res[i].price, res[i].qty];
+        let inventoryItem = [
+          inventory[i].sku, 
+          inventory[i].product_name, 
+          inventory[i].department_name, 
+          inventory[i].price, 
+          inventory[i].qty
+        ];
         // adds each inventory item to our array
         fullInventory.push(inventoryItem)
       }
@@ -93,7 +109,7 @@ function displayFullInventory () {
 
       connection.end()
 
-      promptCustomer()
+      promptCustomer(inventory)
     });
 };
 
