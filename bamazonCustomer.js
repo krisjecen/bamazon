@@ -32,8 +32,12 @@ function checkIfEnoughStock(customerOrder, inventory) {
 
   if (parseInt(customerOrder.itemQty) <= inventory[parseInt(customerOrder.selectedItem) - 1].qty) {
     console.log("Looks like there is sufficient stock to fulfill your order!")
+
   } else {
-    console.log("Insufficient stock")
+    console.log(`
+    Insufficient stock. Care for something else?
+    `)
+    setTimeout(promptCustomer, 1000, inventory)
   };
 }
 
@@ -60,7 +64,15 @@ function promptCustomer(inventory) {
       }
     ])
     .then(function (customerOrder) {
-      checkIfEnoughStock(customerOrder, inventory)
+      if (1 <= parseInt(customerOrder.selectedItem) && parseInt(customerOrder.selectedItem) <= inventory.length) {
+        checkIfEnoughStock(customerOrder, inventory)
+      } else {
+        console.log(`
+    The sku entry ${customerOrder.selectedItem} is invalid.
+    Please enter an sku number from the inventory above.
+        `)
+        setTimeout(promptCustomer, 1000, inventory)
+      }
     });
 };
 
