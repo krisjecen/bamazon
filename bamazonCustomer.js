@@ -4,7 +4,7 @@ var inquirer = require('inquirer');
 var Table = require('cli-table');
 
 
-// need to connect to my bamazon database
+// bamazon database configuration
 var connection = mysql.createConnection({
     host: 'localhost',
     // Your port; if not 3306
@@ -16,13 +16,44 @@ var connection = mysql.createConnection({
     database: 'bamazon'
 });
 
+// connecting to bamazon db
 connection.connect(function (err) {
     if (err) throw err
     console.log('connected as id ' + connection.threadId)
-  });
+});
 
+// -----------------------------------------------------------------------------
+// place order
+// -----------------------------------------------------------------------------
 
-// display all items for sale to the customer when the app is run
+function placeOrder(customerOrder, inventory) {
+  // decrement inventory
+  var updatedQuantity = inventory[parseInt(customerOrder.selectedItem) - 1].qty - customerOrder.itemQty;
+  // shorthand for the query
+  var invUpdate = inventory[parseInt(customerOrder.selectedItem) - 1].sku;
+  // update db with new quantity for the ordered product
+  connection.query(
+    'UPDATE products SET ? WHERE ?',
+    [
+      {
+        qty: updatedQuantity
+      },
+      {
+        sku: invUpdate
+      }
+    ],
+    function (err, res) {
+      if (err) throw err
+      // console.log(res.affectedRows + ' products updated!\n')
+    }
+  )
+
+  displayFullInventory()
+  // display total cost of order to customer
+  var totalCost = parseInt(customerOrder.itemQty) * inventory[parseInt(customerOrder.selectedItem) - 1].price;
+  console.log(`the unit price is: ${inventory[parseInt(customerOrder.selectedItem) - 1].price}`)
+  console.log(`\nOrder total: $${totalCost} \nThank you for your order!`);
+}
 
 // -----------------------------------------------------------------------------
 // check if sufficient stock
@@ -31,8 +62,8 @@ connection.connect(function (err) {
 function checkIfEnoughStock(customerOrder, inventory) {
 
   if (parseInt(customerOrder.itemQty) <= inventory[parseInt(customerOrder.selectedItem) - 1].qty) {
-    console.log("Looks like there is sufficient stock to fulfill your order!")
-
+    console.log("Your order is being placed...")
+    placeOrder(customerOrder, inventory)
   } else {
     console.log(`
     Insufficient stock. Care for something else?
@@ -118,8 +149,6 @@ function displayFullInventory () {
       
       // displays the full inventory to the customer
       console.log(fullInventory.toString());
-
-      connection.end()
 
       promptCustomer(inventory)
     });
