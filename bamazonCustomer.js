@@ -25,6 +25,36 @@ connection.connect(function (err) {
 // display all items for sale to the customer when the app is run
 
 // -----------------------------------------------------------------------------
+// function to prompt the customer about what they would like to purchase
+// -----------------------------------------------------------------------------
+
+function promptCustomer() {
+
+  inquirer
+    .prompt([
+      // prompt customer: ask for sku of the product they want to buy
+      {
+        type: 'number',
+        message: 'What is the sku of the product you wish to purchase?',
+        name: 'selectedItem'
+      },
+      // prompt customer: ask for quantity of the product they want to buy
+      {
+        type: 'number',
+        message: 'How many of that product would you like to purchase?',
+        name: 'itemQty'
+        //default: 1
+      }
+    ])
+    .then(function(customerOrder){
+      // check to see if sufficient stock exists for the order
+      console.log(customerOrder.selectedItem);
+      console.log(customerOrder.itemQty);
+      
+    });
+};
+
+// -----------------------------------------------------------------------------
 // function to display all items for sale upon starting app
 // -----------------------------------------------------------------------------
 function displayFullInventory () {
@@ -62,6 +92,8 @@ function displayFullInventory () {
       console.log(fullInventory.toString());
 
       connection.end()
+
+      promptCustomer()
     });
 };
 
@@ -69,14 +101,10 @@ function displayFullInventory () {
 // upon running the program with node bamazonCustomer
 displayFullInventory();
 
-// prompt customer: ask for sku of the product they want to buy
-
-// prompt customer: ask for quantity of the product they want to buy
-
-// check to see if sufficient stock exists for the order
-    // if insufficient, display "insufficient quantity" or similar
 
 
+
+// if insufficient, display "insufficient quantity" or similar
 // fulfill the customer's order by decreasing the stock (update db)
 
 // calculate and display the total cost of their purchase
