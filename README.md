@@ -1,7 +1,7 @@
 # bamazon
 Bamazon is an online-store command line interface application that uses Node.js and mySQL.
 
-Watch my video demo of the app [on YouTube here](https://youtu.be/5ejw0vY9WKw). It's less than two minutes!
+:tv: Watch my video demo of the app [on YouTube here](https://youtu.be/5ejw0vY9WKw). It's less than two minutes! :tv:
 
 # features
 * Displays Bamazon store inventory (sku, product name, department name, price, & quantity)
