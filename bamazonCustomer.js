@@ -1,5 +1,5 @@
 // bamazon app using node, MySQL, inquirer, and cli-table
-
+'use strict'
 // =============================================================================
 // Requirements
 // =============================================================================
@@ -151,7 +151,7 @@ function displayFullInventory () {
           inventory[i].sku, 
           inventory[i].product_name, 
           inventory[i].department_name, 
-          inventory[i].price, 
+          `$${inventory[i].price}`, 
           inventory[i].qty
         ];
         // add each inventory item to our inventory array
